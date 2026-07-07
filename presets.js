@@ -9,7 +9,7 @@ window.PRESETS = {
   boids: {
     id: 'boids',
     name: 'BOIDS',
-    desc: 'Reynolds’ flocking: each bird only steers by cohesion, alignment and separation with nearby birds — flocks emerge.',
+    desc: 'Reynolds’ flocking: each bird steers by cohesion, alignment and separation with nearby birds.',
     edgeMode: 'wrap',
     render: 'tri',
     fade: 1,
@@ -69,7 +69,7 @@ if (sp < 50) { agent.vx *= 50 / (sp || 1); agent.vy *= 50 / (sp || 1); }`,
   predprey: {
     id: 'predprey',
     name: 'PRED–PREY',
-    desc: 'Prey (blue) herd together and flee; predators (red) chase, tire, and starve. Pursuit and panic waves emerge.',
+    desc: 'Prey (blue) herd together and flee; predators (red) chase, tire, and starve',
     edgeMode: 'bounce',
     render: 'tri',
     fade: 1,
@@ -156,7 +156,7 @@ if (agent.species === 1) {
   ants: {
     id: 'ants',
     name: 'ANTS',
-    desc: 'Ants leave pheromone trails: HOME scent while seeking (red ants), FOOD scent while returning (green). Highways to food emerge.',
+    desc: 'Ants leave pheromone trails: HOME scent while seeking (red ants), FOOD scent while returning (green).',
     edgeMode: 'wrap',
     render: 'dot',
     fade: 1,
@@ -238,7 +238,7 @@ agent.vy = Math.sin(agent.mem.h) * 70;`,
   fireflies: {
     id: 'fireflies',
     name: 'FIREFLIES',
-    desc: 'Each firefly blinks on its own clock, nudged forward whenever a neighbour flashes. The meadow synchronises — slowly, then all at once.',
+    desc: 'Each firefly blinks on its own clock, that clock is nudged forward whenever a neighbour flashes.',
     edgeMode: 'wrap',
     render: 'glow',
     fade: 0.14,
@@ -292,7 +292,7 @@ agent.vx = 0; agent.vy = 0;          // fireflies sit still; try letting them dr
   plife: {
     id: 'plife',
     name: 'PARTICLE LIFE',
-    desc: 'Coloured species attract or repel each other per the matrix — asymmetry allowed, so A can love B while B flees A. Cells, chasers and orbits emerge.',
+    desc: 'Coloured species attract or repel each other per the matrix, asymmetry means that A can love B while B flees A.',
     edgeMode: 'wrap',
     render: 'dot',
     fade: 0.35,
@@ -321,7 +321,7 @@ agent.vx = 0; agent.vy = 0;          // fireflies sit still; try letting them dr
       }
       return m;
     },
-    code: `// PARTICLE LIFE — one force law, one matrix, endless zoo.
+    code: `// PARTICLE LIFE — one force law, using a single matrix
 const dt = world.dt, R = params.radius, CORE = 12;
 let fx = 0, fy = 0;
 
