@@ -7,42 +7,126 @@
   <meta name="description" content="Emergent-behaviour playground: flocks, ants, fireflies — edit the rules live">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🐦%3C/text%3E%3C/svg%3E">
-  <style>
-    :root{ --bg:#FFB84D; --ink:#2b2b29; --muted:#74726a; --panel:#fffaf0; --line:#2b2b29; --accent:#D56062; }
-    [data-theme="dark"]{ --bg:#3f403e; --ink:#FFB84D; --muted:#b9b08f; --panel:#4b4c49; --line:#1b1b1a; --accent:#ff9aa0; }
-    *{ margin:0; box-sizing:border-box; }
-    body{ min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
-      font-family:"Orbitron",sans-serif; color:var(--ink); background:var(--bg); padding:24px; text-align:center;
-      transition:background-color .25s, color .25s; }
-    .toggle{ position:fixed; top:14px; right:14px; font-family:"Press Start 2P",monospace; font-size:9px;
-      padding:9px 11px; border:3px solid var(--line); border-radius:6px; background:var(--panel); color:var(--ink);
-      cursor:pointer; box-shadow:3px 3px 0 var(--line); }
-    .toggle:active{ transform:translate(2px,2px); box-shadow:none; }
-    .emoji{ font-size:clamp(3.5rem,16vw,6rem); filter:drop-shadow(3px 4px 0 rgba(0,0,0,.18)); }
-    h1{ font-family:"Press Start 2P",monospace; font-size:clamp(1rem,5vw,2rem); line-height:1.5; margin:18px 0 10px;
-      text-shadow:3px 3px 0 rgba(0,0,0,.18); }
-    p.desc{ max-width:46ch; font-weight:500; color:var(--muted); line-height:1.6; }
-    .badge{ margin-top:26px; font-family:"Press Start 2P",monospace; font-size:9px; color:var(--accent);
-      border:3px solid var(--line); border-radius:6px; padding:12px 16px; background:var(--panel);
-      box-shadow:4px 4px 0 var(--line); }
-    a.home{ margin-top:22px; font-weight:700; color:var(--accent); text-decoration:none; letter-spacing:.1em; }
-    a.home:hover{ text-decoration:underline; }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <button class="toggle" id="t" type="button">DARK</button>
-  <div class="emoji">🐦</div>
-  <h1>Swarm Lab</h1>
-  <p class="desc">Emergent-behaviour playground: flocks, ants, fireflies — edit the rules live</p>
-  <div class="badge">&#9656; LIVE AT swarm-lab.solhann.net &mdash; START BUILDING</div>
-  <a class="home" href="https://create.solhann.net">&larr; back to the gallery</a>
+
+  <header class="topbar">
+    <span class="emoji">🐦</span>
+    <div>
+      <h1>SWARM LAB</h1>
+      <p class="sub">simple rules, complex behaviour — and you can edit the rules</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="canvas-wrap card">
+      <canvas id="sim"></canvas>
+      <div class="hud" id="hud"></div>
+    </section>
+
+    <aside class="panel">
+      <div class="card">
+        <h2>BEHAVIOUR</h2>
+        <div class="seg" id="presetButtons"></div>
+        <p class="preset-desc" id="presetDesc"></p>
+      </div>
+
+      <div class="card">
+        <h2>PARAMETERS</h2>
+        <div id="sliders"></div>
+        <div id="globalSliders"></div>
+        <div id="matrixWrap" hidden>
+          <div class="matrix-head">
+            <h2 style="margin:0">MATRIX</h2>
+            <button class="btn" id="matrixRandom" type="button">RANDOMIZE</button>
+            <button class="btn" id="matrixClear" type="button">ZERO</button>
+          </div>
+          <p class="matrix-hint">row = who feels the force, column = who causes it.
+            Green attracts, red repels. Click +0.25, shift-click −0.25.</p>
+          <div id="matrixGrid"></div>
+        </div>
+      </div>
+
+      <div class="card controls">
+        <button class="btn primary" id="pauseBtn" type="button">PAUSE</button>
+        <button class="btn" id="stepBtn" type="button">STEP</button>
+        <button class="btn" id="resetBtn" type="button">RESET</button>
+        <button class="btn" id="shareBtn" type="button">SHARE</button>
+      </div>
+    </aside>
+
+    <section class="card editor-card">
+      <h2>BEHAVIOUR CODE <span class="sig">— body of update(agent, neighbors, world, params, helpers), run per agent per tick</span></h2>
+      <div class="editor">
+        <pre id="gutter">1</pre>
+        <textarea id="code" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
+      </div>
+      <div class="editor-actions">
+        <button class="btn primary" id="applyBtn" type="button">APPLY</button>
+        <button class="btn" id="revertBtn" type="button">REVERT</button>
+        <span class="err" id="errStrip" hidden></span>
+      </div>
+      <details class="help">
+        <summary>API HELP</summary>
+        <pre>agent      the one being updated. x, y = position (px); vx, vy = velocity (px/s —
+           the engine integrates position and handles edges AFTER your code runs);
+           species (int, picks the colour); phase, state, energy, glow,
+           justFlashed; mem = free scratch object, all yours.
+
+neighbors  agents within the preset's perception radius, self excluded.
+           Read them freely; mutating them is cheating (the predator does it anyway).
+
+world      width, height, dt, time, frame, edgeMode ('wrap'|'bounce'),
+           rng() = seeded random 0..1,
+           wrapDx(fromX, toX), wrapDy(fromY, toY) = shortest delta across wrapped edges,
+           pheromone (ANTS only): deposit(x, y, amt, ch), sense(x, y, ch) — ch 0 or 1,
+           food = [{x, y, r}], nest = {x, y, r} (ANTS only).
+
+params     current slider values by key (see PARAMETERS panel).
+           PARTICLE LIFE adds params.matrix[rowSpecies][colSpecies] = -1..+1.
+
+helpers    dist(ax, ay, bx, by)   clamp(v, lo, hi)   lerp(a, b, t)
+           angleTo(ax, ay, bx, by)   limit(vx, vy, max) → [vx, vy]
+
+notes      APPLY compiles; syntax errors keep the old code running.
+           A runtime error or code slower than ~50ms/tick pauses the sim — fix
+           and APPLY, or REVERT to the preset original. An infinite loop
+           (while(true)) will still hang the tab: the watchdog can only run
+           between ticks. Nothing you type here leaves your browser unless
+           you press SHARE.</pre>
+      </details>
+    </section>
+  </main>
+
+  <footer>
+    <a href="https://create.solhann.net">&larr; back to the gallery</a>
+  </footer>
+
+  <div class="overlay" id="overlay" hidden>
+    <div class="modal card">
+      <h2>SHARED CODE WARNING</h2>
+      <p>This link contains <strong>custom simulation code</strong> written by whoever
+         sent it. It runs in your browser with access to this page. Review it below —
+         only run it if it looks like harmless simulation math.</p>
+      <pre id="overlayCode"></pre>
+      <div class="actions">
+        <button class="btn primary" id="overlayRun" type="button">RUN IT</button>
+        <button class="btn" id="overlayDiscard" type="button">DISCARD</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const r=document.documentElement,b=document.getElementById('t');
     const set=t=>{r.setAttribute('data-theme',t);b.textContent=t==='dark'?'LIGHT':'DARK';localStorage.setItem('solhann_theme',t)};
     set(localStorage.getItem('solhann_theme')||'light');
     b.onclick=()=>set(r.getAttribute('data-theme')==='dark'?'light':'dark');
   </script>
+  <script src="presets.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
