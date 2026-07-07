@@ -8,7 +8,4 @@ emoji: 🐦
 
 # 🐦 Swarm Lab
 
-Emergent-behaviour playground: flocks, ants, fireflies — edit the rules live
-
-**Live:** https://swarm-lab.solhann.net
-**Gallery:** https://create.solhann.net
+Emergent-behaviour playground: flocks, ants, fireflies — with editable rules!
