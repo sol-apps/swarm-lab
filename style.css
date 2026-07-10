@@ -18,7 +18,6 @@ body{
 .topbar{ display:flex; align-items:center; gap:16px; padding:20px 22px 14px; }
 .topbar .emoji{ font-size:2.6rem; filter:drop-shadow(3px 4px 0 rgba(0,0,0,.18)); }
 .topbar h1{ font-family:"Press Start 2P",monospace; font-size:clamp(.9rem,3vw,1.4rem); text-shadow:3px 3px 0 rgba(0,0,0,.18); }
-.topbar .sub{ color:var(--muted); font-weight:500; font-size:.8rem; margin-top:6px; }
 
 .wrap{
   display:grid; grid-template-columns:minmax(0,1fr) 340px; gap:16px;
